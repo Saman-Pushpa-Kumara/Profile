@@ -271,27 +271,6 @@
             transform: translateY(-3px);
         }
 
-        /* Audio Toggle Button */
-        .audio-btn {
-            display: block;
-            width: 100%;
-            background: transparent;
-            border: 1px dashed #888;
-            color: #888;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 12px;
-            padding: 8px 0;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
-        }
-
-        .audio-btn:hover, .audio-btn.active {
-            border-color: var(--alien-green);
-            color: var(--alien-green);
-            box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.2);
-        }
-
     </style>
 </head>
 <body>
@@ -302,7 +281,7 @@
     <!-- Moving Grid Background -->
     <div class="grid-bg"></div>
 
-    <!-- Audio Player (Autoplay included, but browsers may block it without interaction) -->
+    <!-- Audio Player -->
     <audio id="bg-audio" loop autoplay>
         <source src="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/Xiyonat.mp3" type="audio/mp3">
     </audio>
@@ -310,7 +289,7 @@
     <!-- MAIN HUD CARD -->
     <div class="hud-card" id="profile-hud">
         
-        <!-- NEW: Scanning Line Effect -->
+        <!-- Scanning Line Effect -->
         <div class="laser-scanner"></div>
         
         <!-- Radar & Avatar -->
@@ -346,47 +325,34 @@
             <a href="https://wa.me/94757238914" target="_blank" title="Encrypted Comms (WhatsApp)"><i class="fab fa-whatsapp"></i></a>
         </div>
 
-        <!-- Audio Control Button -->
-        <button id="audioControlBtn" class="audio-btn" onclick="toggleAudio()">
-            <i class="fas fa-volume-mute"></i> ENABLE AUDIO
-        </button>
-
     </div>
 
     <!-- Audio Script -->
     <script>
         const audio = document.getElementById("bg-audio");
-        const audioBtn = document.getElementById("audioControlBtn");
-
         audio.volume = 0.4; // Volume level
 
-        // Try to check if autoplay worked
+        // Page load වූ පසු Play කිරීමට උත්සාහ කිරීම
         window.addEventListener('load', () => {
             let playPromise = audio.play();
+            
             if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                    // Autoplay started successfully
-                    audioBtn.classList.add("active");
-                    audioBtn.innerHTML = '<i class="fas fa-volume-up"></i> AUDIO ON';
-                }).catch(error => {
-                    // Autoplay was blocked by browser
-                    console.log("Autoplay blocked. User needs to click the Enable Audio button.");
+                playPromise.catch(error => {
+                    // Browser එක මගින් Auto-play block කළහොත් (user interaction අවශ්‍ය නම්)
+                    // පරිශීලකයා page එකේ ඕනෑම තැනක click කළ පළමු අවස්ථාවේදීම play වීම සඳහා:
+                    
+                    const startAudio = () => {
+                        audio.play();
+                        // Play වූ පසු event listener ඉවත් කිරීම
+                        document.body.removeEventListener('click', startAudio);
+                        document.body.removeEventListener('touchstart', startAudio);
+                    };
+
+                    document.body.addEventListener('click', startAudio);
+                    document.body.addEventListener('touchstart', startAudio);
                 });
             }
         });
-
-        // Function to Toggle Audio
-        function toggleAudio() {
-            if (audio.paused) {
-                audio.play();
-                audioBtn.classList.add("active");
-                audioBtn.innerHTML = '<i class="fas fa-volume-up"></i> AUDIO ON';
-            } else {
-                audio.pause();
-                audioBtn.classList.remove("active");
-                audioBtn.innerHTML = '<i class="fas fa-volume-mute"></i> ENABLE AUDIO';
-            }
-        }
     </script>
 
 </body>
