@@ -39,7 +39,7 @@
             position: relative;
         }
 
-        /* Scanline Overlay Effect (Background) */
+        /* Scanline Overlay Effect */
         .scanlines {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -67,6 +67,33 @@
             100% { transform: perspective(500px) rotateX(60deg) translateY(40px) translateZ(-200px); }
         }
 
+        /* Boot Screen (Initial Click Screen) */
+        #boot-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            cursor: pointer;
+            transition: opacity 1s ease;
+        }
+
+        #boot-screen h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px var(--alien-green);
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
         /* Main Profile HUD Card */
         .hud-card {
             background: var(--panel-bg);
@@ -75,44 +102,22 @@
             max-width: 450px;
             padding: 40px 30px;
             position: relative;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 1s ease;
             box-shadow: 0 0 20px rgba(57, 255, 20, 0.1), inset 0 0 20px rgba(57, 255, 20, 0.05);
             /* Sci-Fi Angled Corners */
             clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
-            animation: hudLoad 1.5s ease-out forwards;
-            overflow: hidden; /* For the laser scan to stay inside */
         }
 
-        @keyframes hudLoad {
-            0% { opacity: 0; transform: scale(0.8) translateY(50px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        /* 🟢 NEW: Scanner / Laser Line Animation 🟢 */
-        .laser-scanner {
-            position: absolute;
-            top: -10px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--alien-green);
-            box-shadow: 0 0 15px var(--alien-green), 0 0 30px var(--alien-green);
-            z-index: 100;
-            animation: scanning 3s linear infinite;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-
-        @keyframes scanning {
-            0% { top: -10px; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
+        .hud-card.active {
+            opacity: 1;
+            transform: scale(1);
         }
 
         /* Corner glowing accents */
         .hud-card::before, .hud-card::after {
             content: ''; position: absolute; width: 20px; height: 20px; border: 2px solid var(--alien-green);
-            z-index: 5;
         }
         .hud-card::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
         .hud-card::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
@@ -152,7 +157,6 @@
             z-index: 2;
             box-shadow: 0 0 15px var(--alien-green);
             transition: 0.4s ease;
-            position: relative;
         }
 
         .profile-pic:hover {
@@ -246,7 +250,6 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 15px;
         }
 
         .social-grid a {
@@ -281,20 +284,24 @@
     <!-- Moving Grid Background -->
     <div class="grid-bg"></div>
 
-    <!-- Audio Player -->
-    <audio id="bg-audio" loop autoplay>
+    <!-- Hidden Audio Player -->
+    <audio id="bg-audio" loop>
         <source src="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/Xiyonat.mp3" type="audio/mp3">
     </audio>
+
+    <!-- INITIALIZATION SCREEN -->
+    <div id="boot-screen" onclick="initializeSystem()">
+        <h1>[ SYSTEM STANDBY ]</h1>
+        <p>> CLICK TO INITIATE UPLINK <</p>
+    </div>
 
     <!-- MAIN HUD CARD -->
     <div class="hud-card" id="profile-hud">
         
-        <!-- Scanning Line Effect -->
-        <div class="laser-scanner"></div>
-        
         <!-- Radar & Avatar -->
         <div class="avatar-container">
             <div class="radar-sweep"></div>
+            <!-- Photo Filter Removed for Clarity -->
             <img src="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png" alt="Saman - Target Acquired" class="profile-pic">
         </div>
 
@@ -324,35 +331,29 @@
             <a href="https://www.youtube.com" target="_blank" title="Video Transmission"><i class="fab fa-youtube"></i></a>
             <a href="https://wa.me/94757238914" target="_blank" title="Encrypted Comms (WhatsApp)"><i class="fab fa-whatsapp"></i></a>
         </div>
-
     </div>
 
-    <!-- Audio Script -->
+    <!-- Initialization Script -->
     <script>
-        const audio = document.getElementById("bg-audio");
-        audio.volume = 0.4; // Volume level
+        function initializeSystem() {
+            // Play Audio
+            let audio = document.getElementById("bg-audio");
+            audio.volume = 0.5; // Set volume to 50%
+            audio.play();
 
-        // Page load වූ පසු Play කිරීමට උත්සාහ කිරීම
-        window.addEventListener('load', () => {
-            let playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // Browser එක මගින් Auto-play block කළහොත් (user interaction අවශ්‍ය නම්)
-                    // පරිශීලකයා page එකේ ඕනෑම තැනක click කළ පළමු අවස්ථාවේදීම play වීම සඳහා:
-                    
-                    const startAudio = () => {
-                        audio.play();
-                        // Play වූ පසු event listener ඉවත් කිරීම
-                        document.body.removeEventListener('click', startAudio);
-                        document.body.removeEventListener('touchstart', startAudio);
-                    };
+            // Hide Boot Screen
+            let bootScreen = document.getElementById("boot-screen");
+            bootScreen.style.opacity = '0';
+            setTimeout(() => {
+                bootScreen.style.display = 'none';
+            }, 1000);
 
-                    document.body.addEventListener('click', startAudio);
-                    document.body.addEventListener('touchstart', startAudio);
-                });
-            }
-        });
+            // Show HUD Card
+            let hud = document.getElementById("profile-hud");
+            setTimeout(() => {
+                hud.classList.add("active");
+            }, 500);
+        }
     </script>
 
 </body>
