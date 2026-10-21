@@ -1,163 +1,393 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css"> 
-<meta name="theme-color" content="#000">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
-<meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"> 
-<meta name="google" content="notranslate">  
-<title>සමන්</title>
-<meta name="description" content="සමන් : Profile" />
-<link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png">
-<link rel="icon" href="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.13/howler.min.js" ></script>
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png">
-<meta property="og:title" content="සමන්">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMAN - TACTICAL PROFILE</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Sci-Fi / Military Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-<script type="text/javascript">
-// Background Audio එක මෙතනින් වෙනස් කර ඇත
-var sound = new Howl({
-src: ['https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/Xiyonat_130%20kbps.m4a'],
-loop:true
-});
-sound.play();
-</script>
+    <style>
+        /* CSS Variables for Alien/Military Theme */
+        :root {
+            --alien-green: #39ff14;
+            --dark-bg: #050a05;
+            --panel-bg: rgba(10, 20, 10, 0.85);
+            --text-main: #e0e0e0;
+            --hud-border: #1b4332;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--alien-green);
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Scanline Overlay Effect (Background) */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
+            background-size: 100% 4px;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        /* Tactical Grid Background */
+        .grid-bg {
+            position: absolute;
+            width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(rgba(57, 255, 20, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(57, 255, 20, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            animation: gridMove 10s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(40px) translateZ(-200px); }
+        }
+
+        /* Main Profile HUD Card */
+        .hud-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--hud-border);
+            width: 90%;
+            max-width: 450px;
+            padding: 40px 30px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.1), inset 0 0 20px rgba(57, 255, 20, 0.05);
+            /* Sci-Fi Angled Corners */
+            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+            animation: hudLoad 1.5s ease-out forwards;
+            overflow: hidden; /* For the laser scan to stay inside */
+        }
+
+        @keyframes hudLoad {
+            0% { opacity: 0; transform: scale(0.8) translateY(50px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* 🟢 NEW: Scanner / Laser Line Animation 🟢 */
+        .laser-scanner {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--alien-green);
+            box-shadow: 0 0 15px var(--alien-green), 0 0 30px var(--alien-green);
+            z-index: 100;
+            animation: scanning 3s linear infinite;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        @keyframes scanning {
+            0% { top: -10px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* Corner glowing accents */
+        .hud-card::before, .hud-card::after {
+            content: ''; position: absolute; width: 20px; height: 20px; border: 2px solid var(--alien-green);
+            z-index: 5;
+        }
+        .hud-card::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .hud-card::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+        /* Profile Image with Radar Effect */
+        .avatar-container {
+            position: relative;
+            width: 140px; height: 140px;
+            margin: 0 auto 25px auto;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .radar-sweep {
+            position: absolute;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            border: 1px dashed var(--alien-green);
+            animation: spin 4s linear infinite;
+        }
+
+        .radar-sweep::after {
+            content: ''; position: absolute; top: 0; left: 50%; width: 50%; height: 50%;
+            background: linear-gradient(45deg, rgba(57, 255, 20, 0.4) 0%, transparent 70%);
+            transform-origin: bottom left;
+            border-radius: 100% 0 0 0;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* පැහැදිලි ඡායාරූප සැකසුම */
+        .profile-pic {
+            width: 130px; height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--alien-green);
+            z-index: 2;
+            box-shadow: 0 0 15px var(--alien-green);
+            transition: 0.4s ease;
+            position: relative;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 25px var(--alien-green);
+        }
+
+        /* Typography */
+        .name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            text-align: center;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--alien-green);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .role {
+            text-align: center;
+            font-size: 16px;
+            color: var(--alien-green);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            background: rgba(57, 255, 20, 0.1);
+            display: inline-block;
+            padding: 5px 15px;
+            border: 1px solid var(--alien-green);
+            width: 100%;
+        }
+
+        /* Objective / Mission Briefing */
+        .objective-box {
+            border-left: 3px solid var(--alien-green);
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .objective-box::before {
+            content: 'MISSION_OBJ:';
+            display: block;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .objective-text {
+            font-size: 13px;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Tactical Info Data */
+        .data-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .data-list li {
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            color: var(--text-main);
+            border-bottom: 1px solid rgba(57, 255, 20, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .data-list i {
+            color: var(--alien-green);
+            width: 30px;
+            font-size: 16px;
+            text-shadow: 0 0 5px var(--alien-green);
+        }
+
+        /* Comm Links (Social Icons) */
+        .comm-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #888;
+        }
+
+        .social-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .social-grid a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 45px;
+            height: 45px;
+            color: var(--alien-green);
+            background: transparent;
+            border: 1px solid var(--alien-green);
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.3s;
+            clip-path: polygon(20% 0, 100% 0, 100% 80%, 80% 100%, 0 100%, 0 20%);
+        }
+
+        .social-grid a:hover {
+            background: var(--alien-green);
+            color: #000;
+            box-shadow: 0 0 15px var(--alien-green);
+            transform: translateY(-3px);
+        }
+
+        /* Audio Toggle Button */
+        .audio-btn {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: 1px dashed #888;
+            color: #888;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .audio-btn:hover, .audio-btn.active {
+            border-color: var(--alien-green);
+            color: var(--alien-green);
+            box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+
+    </style>
 </head>
-
 <body>
-<style type="text/css">
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Devanagari:wght@300&display=swap'); 
-*{
-padding:0;
-margin:0;
-outline:0;
-}
-body{
-background:black;
-}
-.mid{
-height:300px;
-width:100%;
-position:absolute;
-top:200px;
-left:0;
-text-align:center;
-}
-.mid img{
-position:relative;
-max-height:150px;
-max-width:150px;
-display:block;
-margin:auto;
-filter:grayscale(.2);
-border-radius:50%;  
-}
-.mid:after{
-content:'';
-height:140px;
-width:140px;
-display:block;
-position:absolute;
-top:5px;
-left:calc(50% - 70px);
-box-shadow:0 0 10px rgb(0,0,0) ,0 0 15px rgb(0,0,0),0 0 25px rgb(00,0,0) ,0 0 30px rgb(0,0,0)  ;
-border-radius:500px;
-}
-.mid:before{
-content:'';
-height:160px;
-width:160px;
-display:block;
-border-radius:50%;
-position:absolute;
-top:-5px;
-left:calc(50% - 80px);
-background:linear-gradient(120deg , #0f8, #0dd);
-filter:blur(20px);
-animation:ani 3s linear infinite;
-}
-@keyframes ani{
-0%{
-filter:blur( 20px) hue-rotate(0deg);
-}
-50%{
-filter:blur( 40px) hue-rotate(90deg);
-}
-100%{
-filter:blur( 20px) hue-rotate(0deg);
-}
-}
-.nam{
-font-family: 'IBM Plex Sans Devanagari', sans-serif;
-position:absolute;
-top:400px;
-left:0;
-width:100%;
-height:50px;
-text-align:center;
-line-height:50px;
-font-size:35px;
-color:transparent;
-background:linear-gradient(90deg ,#e0286c,#5328e0);
-background-clip:text;
--webkit-background-clip:text;
-animation:an 3s linear infinite;
-}
-@keyframes an{
-0%{
-filter:hue-rotate(0deg);
-}
-50%{
-filter:hue-rotate(90deg);
-}
-100%{
-filter:hue-rotate(0deg);
-}
-}
-.fbox{
-position:absolute;
-top:500px;
-left:0;
-width:100%;
-height:50px;
-text-align:center;
-line-height:50px;
-font-size:35px;
-color:white;
-}
-.fbox i{
-margin-left:20px;
-}
-a{
-color:white;
-text-decoration:none;
-}
-</style>
 
-<div class="mid" >
-<!-- Profile Image එක මෙතනින් වෙනස් කර ඇත -->
-<img src="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png" >
-</div>
-<br>
-<!-- නම මෙතනින් වෙනස් කර ඇත -->
-<div class="nam" >සමන්</div>
+    <!-- Scanline visual effect -->
+    <div class="scanlines"></div>
+    
+    <!-- Moving Grid Background -->
+    <div class="grid-bg"></div>
 
-<div class="fbox" >
-<!-- Social Media Icons සහ Links මෙතනින් සකස් කර ඇත -->
-<a href="https://www.fb.com/spk220" target="_blank"  >
-    <i class="fab fa-facebook" style="text-shadow:1px 0px 5px #1877F2;margin-left:0"  ></i>
-</a>
-<a href="https://github.com/" target="_blank"  >
-    <i class="fab fa-github"  style="text-shadow:2px 0px 3px #6e5494;"  ></i>
-</a>
-<a href="https://www.youtube.com" target="_blank"  >
-    <i class="fab fa-youtube" style="text-shadow:1px 0px 3px #FF0000;" ></i>
-</a>
-<a href="https://wa.me/94757238914" target="_blank"  >
-    <i class="fab fa-whatsapp" style="text-shadow:1px 0px 3px #25D366;" ></i>
-</a>
-</div>
+    <!-- Audio Player (Autoplay included, but browsers may block it without interaction) -->
+    <audio id="bg-audio" loop autoplay>
+        <source src="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/Xiyonat.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- MAIN HUD CARD -->
+    <div class="hud-card" id="profile-hud">
+        
+        <!-- NEW: Scanning Line Effect -->
+        <div class="laser-scanner"></div>
+        
+        <!-- Radar & Avatar -->
+        <div class="avatar-container">
+            <div class="radar-sweep"></div>
+            <img src="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png" alt="Saman - Target Acquired" class="profile-pic">
+        </div>
+
+        <!-- Identification -->
+        <h1 class="name">SAMAN</h1>
+        <div class="role">[ FREE THINKER ]</div>
+
+        <!-- Objective Data -->
+        <div class="objective-box">
+            <p class="objective-text">
+                "Transforming every life challenge into a stepping stone to success, continuously acquiring new knowledge, and leveraging my skills to achieve ultimate goals."
+            </p>
+        </div>
+
+        <!-- Tactical Contact Data -->
+        <ul class="data-list">
+            <li><i class="fas fa-envelope"></i> <span>spk2200@yandex.com</span></li>
+            <li><i class="fas fa-satellite-dish"></i> <span>+94 75 723 8914</span></li>
+            <li><i class="fas fa-crosshairs"></i> <span>BASE: HAPUTALE SECTOR</span></li>
+        </ul>
+
+        <!-- Comm Links -->
+        <div class="comm-title">>>> ESTABLISH COMMS <<<</div>
+        <div class="social-grid">
+            <a href="https://www.fb.com/spk2200" target="_blank" title="Facebook Uplink"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://github.com/" target="_blank" title="GitHub Database"><i class="fab fa-github"></i></a>
+            <a href="https://www.youtube.com" target="_blank" title="Video Transmission"><i class="fab fa-youtube"></i></a>
+            <a href="https://wa.me/94757238914" target="_blank" title="Encrypted Comms (WhatsApp)"><i class="fab fa-whatsapp"></i></a>
+        </div>
+
+        <!-- Audio Control Button -->
+        <button id="audioControlBtn" class="audio-btn" onclick="toggleAudio()">
+            <i class="fas fa-volume-mute"></i> ENABLE AUDIO
+        </button>
+
+    </div>
+
+    <!-- Audio Script -->
+    <script>
+        const audio = document.getElementById("bg-audio");
+        const audioBtn = document.getElementById("audioControlBtn");
+
+        audio.volume = 0.4; // Volume level
+
+        // Try to check if autoplay worked
+        window.addEventListener('load', () => {
+            let playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay started successfully
+                    audioBtn.classList.add("active");
+                    audioBtn.innerHTML = '<i class="fas fa-volume-up"></i> AUDIO ON';
+                }).catch(error => {
+                    // Autoplay was blocked by browser
+                    console.log("Autoplay blocked. User needs to click the Enable Audio button.");
+                });
+            }
+        });
+
+        // Function to Toggle Audio
+        function toggleAudio() {
+            if (audio.paused) {
+                audio.play();
+                audioBtn.classList.add("active");
+                audioBtn.innerHTML = '<i class="fas fa-volume-up"></i> AUDIO ON';
+            } else {
+                audio.pause();
+                audioBtn.classList.remove("active");
+                audioBtn.innerHTML = '<i class="fas fa-volume-mute"></i> ENABLE AUDIO';
+            }
+        }
+    </script>
+
 </body>
 </html>
