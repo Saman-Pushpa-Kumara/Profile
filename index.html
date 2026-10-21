@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css"> 
+<meta name="theme-color" content="#000">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"> 
+<meta name="google" content="notranslate">  
+<title>සමන්</title>
+<meta name="description" content="සමන් : Profile" />
+<link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png">
+<link rel="icon" href="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.13/howler.min.js" ></script>
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png">
+<meta property="og:title" content="සමන්">
+
+<script type="text/javascript">
+// Background Audio එක මෙතනින් වෙනස් කර ඇත
+var sound = new Howl({
+src: ['https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/Xiyonat_130%20kbps.m4a'],
+loop:true
+});
+sound.play();
+</script>
+</head>
+
+<body>
+<style type="text/css">
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Devanagari:wght@300&display=swap'); 
+*{
+padding:0;
+margin:0;
+outline:0;
+}
+body{
+background:black;
+}
+.mid{
+height:300px;
+width:100%;
+position:absolute;
+top:200px;
+left:0;
+text-align:center;
+}
+.mid img{
+position:relative;
+max-height:150px;
+max-width:150px;
+display:block;
+margin:auto;
+filter:grayscale(.2);
+border-radius:50%;  
+}
+.mid:after{
+content:'';
+height:140px;
+width:140px;
+display:block;
+position:absolute;
+top:5px;
+left:calc(50% - 70px);
+box-shadow:0 0 10px rgb(0,0,0) ,0 0 15px rgb(0,0,0),0 0 25px rgb(00,0,0) ,0 0 30px rgb(0,0,0)  ;
+border-radius:500px;
+}
+.mid:before{
+content:'';
+height:160px;
+width:160px;
+display:block;
+border-radius:50%;
+position:absolute;
+top:-5px;
+left:calc(50% - 80px);
+background:linear-gradient(120deg , #0f8, #0dd);
+filter:blur(20px);
+animation:ani 3s linear infinite;
+}
+@keyframes ani{
+0%{
+filter:blur( 20px) hue-rotate(0deg);
+}
+50%{
+filter:blur( 40px) hue-rotate(90deg);
+}
+100%{
+filter:blur( 20px) hue-rotate(0deg);
+}
+}
+.nam{
+font-family: 'IBM Plex Sans Devanagari', sans-serif;
+position:absolute;
+top:400px;
+left:0;
+width:100%;
+height:50px;
+text-align:center;
+line-height:50px;
+font-size:35px;
+color:transparent;
+background:linear-gradient(90deg ,#e0286c,#5328e0);
+background-clip:text;
+-webkit-background-clip:text;
+animation:an 3s linear infinite;
+}
+@keyframes an{
+0%{
+filter:hue-rotate(0deg);
+}
+50%{
+filter:hue-rotate(90deg);
+}
+100%{
+filter:hue-rotate(0deg);
+}
+}
+.fbox{
+position:absolute;
+top:500px;
+left:0;
+width:100%;
+height:50px;
+text-align:center;
+line-height:50px;
+font-size:35px;
+color:white;
+}
+.fbox i{
+margin-left:20px;
+}
+a{
+color:white;
+text-decoration:none;
+}
+</style>
+
+<div class="mid" >
+<!-- Profile Image එක මෙතනින් වෙනස් කර ඇත -->
+<img src="https://cdn.jsdelivr.net/gh/Saman-Pushpa-Kumara/Profile@main/saman.png" >
+</div>
+<br>
+<!-- නම මෙතනින් වෙනස් කර ඇත -->
+<div class="nam" >සමන්</div>
+
+<div class="fbox" >
+<!-- Social Media Icons සහ Links මෙතනින් සකස් කර ඇත -->
+<a href="https://www.fb.com/spk220" target="_blank"  >
+    <i class="fab fa-facebook" style="text-shadow:1px 0px 5px #1877F2;margin-left:0"  ></i>
+</a>
+<a href="https://github.com/" target="_blank"  >
+    <i class="fab fa-github"  style="text-shadow:2px 0px 3px #6e5494;"  ></i>
+</a>
+<a href="https://www.youtube.com" target="_blank"  >
+    <i class="fab fa-youtube" style="text-shadow:1px 0px 3px #FF0000;" ></i>
+</a>
+<a href="https://wa.me/94757238914" target="_blank"  >
+    <i class="fab fa-whatsapp" style="text-shadow:1px 0px 3px #25D366;" ></i>
+</a>
+</div>
+</body>
+</html>
