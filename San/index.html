@@ -13,6 +13,24 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3256/3256783.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- OneSignal Push Notification Setup -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "699b9147-a3de-49b9-892a-fad2219548be",
+          notifyButton: {
+            enable: true,
+            displayPredicate: () => true
+          },
+          allowLocalhostAsSecureOrigin: true
+        });
+        OneSignal.Slidedown.promptPush();
+      });
+    </script>
+
     <style>
         :root {
             --bg-base: #060913;
@@ -40,7 +58,6 @@
             margin: 0;
         }
 
-        /* Ambient Glow Background */
         body::before {
             content: '';
             position: absolute;
@@ -110,11 +127,6 @@
         .msg-sender { font-weight: 600; color: var(--cyan-glow); font-size: 11px; margin-bottom: 3px; }
         .delete-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 2px 4px; font-size: 11px; opacity: 0.5; transition: 0.2s; }
         .delete-btn:hover { color: var(--neon-red); opacity: 1; }
-
-        /* Quick Emojis */
-        .emoji-bar { display: flex; gap: 6px; padding: 6px 16px; background: rgba(8, 14, 25, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.05); overflow-x: auto; }
-        .emoji-btn { background: none; border: none; font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 6px; transition: 0.2s; }
-        .emoji-btn:hover { background: rgba(0, 242, 254, 0.15); transform: scale(1.2); }
 
         /* Input Controls */
         .chat-input-area { padding: 12px 16px; background: rgba(8, 13, 24, 0.95); border-top: 1px solid var(--border-glow); display: flex; align-items: center; gap: 10px; }
@@ -200,17 +212,7 @@
     <!-- Messages Container -->
     <div class="chat-messages" id="messages-container"></div>
 
-    <!-- Quick Emoji Bar -->
-    <div class="emoji-bar">
-        <button class="emoji-btn" onclick="sendEmoji('⚡')">⚡</button>
-        <button class="emoji-btn" onclick="sendEmoji('🚀')">🚀</button>
-        <button class="emoji-btn" onclick="sendEmoji('🔒')">🔒</button>
-        <button class="emoji-btn" onclick="sendEmoji('🔥')">🔥</button>
-        <button class="emoji-btn" onclick="sendEmoji('👍')">👍</button>
-        <button class="emoji-btn" onclick="sendEmoji('❤️')">❤️</button>
-    </div>
-
-    <!-- Bottom Chat Input -->
+    <!-- Bottom Chat Input (Emoji bar removed) -->
     <div class="chat-input-area">
         <input type="text" id="message-input" class="message-input" placeholder="Transmit packet..." autocomplete="off" />
         <button id="send-btn" class="send-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
@@ -272,6 +274,30 @@
         delete: () => { playTone(220, 'sawtooth', 0.12); }
     };
 
+    // ==========================================
+    // Send Push Notification via OneSignal API
+    // ==========================================
+    function triggerPushNotification(sender, messageText) {
+        const appId = "699b9147-a3de-49b9-892a-fad2219548be";
+        const restApiKey = "os_v2_app_ngnzcr5d3ze3tcjk7ljcdfkixy5zaozjlppenguubj3oib6mdjuddb77n7ptmweqw4xjp4qfk2zl6bagd2a4aq2cyrxiksss63cmwxq"; 
+
+        fetch("https://onesignal.com/api/v1/notifications", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                "Authorization": "Basic " + restApiKey
+            },
+            body: JSON.stringify({
+                app_id: appId,
+                included_segments: ["Total Subscriptions"], 
+                headings: { en: "CYBER-CORE: " + sender },
+                contents: { en: messageText },
+                url: window.location.href 
+            })
+        }).catch(error => console.error("Notification Error:", error));
+    }
+    // ==========================================
+
     const securityScreen = document.getElementById('security-screen');
     const secUsername = document.getElementById('sec-username');
     const secPassword = document.getElementById('sec-password');
@@ -325,17 +351,21 @@
     document.getElementById('menu-lock').addEventListener('click', () => { securityScreen.style.display = "flex"; checkDeviceAuth(); });
     document.getElementById('menu-reset').addEventListener('click', () => { if(confirm("ඔබගේ User Name සහ Password clear කිරීමට අවශ්‍යද?")) { localStorage.clear(); location.reload(); }});
 
-    function sendMessage(customText = null) {
-        const text = customText || messageInput.value.trim();
+    function sendMessage() {
+        const text = messageInput.value.trim();
         if (!text || !currentUser) return;
+        
         push(messagesRef, { sender: currentUser, text: text, timestamp: Date.now() })
-        .then(() => soundEffects.send()).catch(err => alert("Transmission Error: " + err.message));
-        if (!customText) messageInput.value = "";
+        .then(() => {
+            soundEffects.send();
+            triggerPushNotification(currentUser, text); 
+        }).catch(err => alert("Transmission Error: " + err.message));
+        
+        messageInput.value = "";
     }
 
     document.getElementById('send-btn').addEventListener('click', () => sendMessage());
     messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-    window.sendEmoji = function(emoji) { sendMessage(emoji); };
 
     onChildAdded(messagesRef, (snapshot) => {
         const data = snapshot.val();
@@ -373,7 +403,6 @@
 
 <!-- Dynamic PWA Creation & Floating Banner Script -->
 <script>
-    // 1. Create Manifest and Service Worker Dynamically in JS (No extra files needed)
     (function initDynamicPWA() {
         const manifestObj = { 
             "name": "CYBER-CORE Secure Chat", "short_name": "CYBER-CORE", 
@@ -388,36 +417,25 @@
         manifestLink.rel = 'manifest'; manifestLink.href = encodedManifest; 
         document.head.appendChild(manifestLink);
         
+        // PWA සහ OneSignal සඳහා නිවැරදි Service Worker එක ලියාපදිංචි කිරීම
         if ('serviceWorker' in navigator) { 
-            // Dummy service worker to pass PWA criteria
-            const swCode = `self.addEventListener('install', e => self.skipWaiting()); self.addEventListener('fetch', e => {});`; 
-            const blob = new Blob([swCode], { type: 'application/javascript' }); 
-            navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('SW Reg Failed:', err)); 
+            navigator.serviceWorker.register('/OneSignalSDKWorker.js').catch(err => console.log('SW Reg Failed:', err)); 
         }
     })();
 
-    // 2. Install Prompt & UI Banner Logic
     let deferredPrompt = null;
     const pwaNotification = document.getElementById('pwaNotification');
     const pwaInstallBtn = document.getElementById('pwaInstallBtn');
     const pwaCloseBtn = document.getElementById('pwaCloseBtn');
     const menuInstallBtn = document.getElementById('menu-install');
-    
-    // Check if dismissed previously
     const isPwaDismissed = sessionStorage.getItem('cyber-pwa-dismissed');
 
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        
-        // Always show install option in dropdown menu
         menuInstallBtn.style.display = 'flex';
-
-        // Show floating banner after a short delay if not dismissed
         if (!isPwaDismissed) {
-            setTimeout(() => {
-                pwaNotification.classList.add('show');
-            }, 2500);
+            setTimeout(() => { pwaNotification.classList.add('show'); }, 2500);
         }
     });
 
@@ -425,9 +443,7 @@
         if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('App Installed Successfully');
-            }
+            if (outcome === 'accepted') console.log('App Installed Successfully');
             deferredPrompt = null;
             pwaNotification.classList.remove('show');
             menuInstallBtn.style.display = 'none';
@@ -437,17 +453,14 @@
         }
     }
 
-    // Attach install trigger to both buttons
     pwaInstallBtn.addEventListener('click', triggerInstall);
     menuInstallBtn.addEventListener('click', triggerInstall);
 
-    // Close Banner Logic
     pwaCloseBtn.addEventListener('click', () => {
         pwaNotification.classList.remove('show');
-        sessionStorage.setItem('cyber-pwa-dismissed', 'true'); // Prevents annoying user in same session
+        sessionStorage.setItem('cyber-pwa-dismissed', 'true');
     });
 
-    // Hide UI when app is installed
     window.addEventListener('appinstalled', () => {
         deferredPrompt = null;
         pwaNotification.classList.remove('show');
