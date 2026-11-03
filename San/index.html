@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYBER-CORE // Realtime Secure Chat</title>
+    <title>Realtime Chat</title>
     
     <!-- iOS Meta Tags -->
     <meta name="theme-color" content="#060913">
@@ -27,7 +27,11 @@
           },
           allowLocalhostAsSecureOrigin: true
         });
-        OneSignal.Slidedown.promptPush();
+        
+        // Page එක Load වී තත්පර 2කින් Notification Prompt එක පෙන්වීමට
+        setTimeout(() => {
+            OneSignal.Slidedown.promptPush();
+        }, 2000);
       });
     </script>
 
@@ -107,7 +111,7 @@
         .icon-btn:hover { background: rgba(0, 242, 254, 0.2); box-shadow: 0 0 10px var(--cyan-glow); }
 
         /* Tech Menu Dropdown */
-        .tech-menu { position: absolute; top: 65px; right: 20px; background: #0d1527; border: 1px solid var(--cyan-glow); border-radius: 12px; width: 180px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 99; }
+        .tech-menu { position: absolute; top: 65px; right: 20px; background: #0d1527; border: 1px solid var(--cyan-glow); border-radius: 12px; width: 200px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 99; }
         .tech-menu.show { display: flex; }
         .tech-menu-item { padding: 12px 16px; font-size: 13px; color: var(--text-main); background: none; border: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; font-family: 'JetBrains Mono', monospace; }
         .tech-menu-item:hover { background: rgba(0, 242, 254, 0.15); color: var(--cyan-glow); }
@@ -142,7 +146,7 @@
         .sec-btn { width: 100%; padding: 12px; background: linear-gradient(90deg, #00f2fe, #4facfe); border: none; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; color: #040914; letter-spacing: 1px; cursor: pointer; margin-top: 6px; }
         .sec-btn:hover { box-shadow: 0 0 15px var(--cyan-glow); }
 
-        /* === PWA INSTALL NOTIFICATION BANNER === */
+        /* PWA NOTIFICATION */
         .pwa-notification {
             position: fixed; bottom: -120px; left: 50%; transform: translateX(-50%);
             background: rgba(10, 16, 30, 0.95); backdrop-filter: blur(15px);
@@ -163,9 +167,7 @@
             font-size: 0.85rem; font-weight: 700; font-family: 'Rajdhani', sans-serif;
             cursor: pointer; transition: all 0.3s ease; letter-spacing: 1px;
         }
-        .pwa-install-btn:hover { box-shadow: 0 0 15px var(--cyan-glow); transform: translateY(-2px); }
         .pwa-close-btn { background: transparent; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; transition: color 0.3s ease; padding: 0 5px; }
-        .pwa-close-btn:hover { color: var(--neon-red); }
     </style>
 </head>
 <body>
@@ -188,6 +190,9 @@
     <!-- Dropdown Menu -->
     <div class="tech-menu" id="tech-menu">
         <button class="tech-menu-item" id="menu-install" style="display: none; color: var(--neon-green);">📲 Install App</button>
+        <!-- අලුතින් එකතු කළ Notification Button එක -->
+        <button class="tech-menu-item" id="menu-notify" style="color: var(--cyan-glow);">🔔 Enable Notifications</button>
+        
         <button class="tech-menu-item" id="menu-refresh">🔄 Refresh Messages</button>
         <button class="tech-menu-item" id="menu-sound">🔊 Mute Sounds</button>
         <button class="tech-menu-item" id="menu-lock">🔒 Lock Device</button>
@@ -212,7 +217,7 @@
     <!-- Messages Container -->
     <div class="chat-messages" id="messages-container"></div>
 
-    <!-- Bottom Chat Input (Emoji bar removed) -->
+    <!-- Bottom Chat Input -->
     <div class="chat-input-area">
         <input type="text" id="message-input" class="message-input" placeholder="Transmit packet..." autocomplete="off" />
         <button id="send-btn" class="send-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
@@ -231,7 +236,6 @@
     </div>
 </div>
 
-<!-- Firebase & Core Chat Logic -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded, onChildRemoved, remove } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
@@ -284,17 +288,21 @@
         fetch("https://onesignal.com/api/v1/notifications", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json; charset=utf-8",
+                "Content-Type": "application/json",
                 "Authorization": "Basic " + restApiKey
             },
             body: JSON.stringify({
                 app_id: appId,
-                included_segments: ["Total Subscriptions"], 
+                // මෙතන තමයි Segment එක Fix කලේ "Total Subscriptions" වෙනුවට "Subscribed Users"
+                included_segments: ["Subscribed Users"], 
                 headings: { en: "CYBER-CORE: " + sender },
                 contents: { en: messageText },
-                url: window.location.href 
+                url: window.location.origin 
             })
-        }).catch(error => console.error("Notification Error:", error));
+        })
+        .then(response => response.json())
+        .then(data => console.log("Push Notification Sent:", data))
+        .catch(error => console.error("Push Notification Error:", error));
     }
     // ==========================================
 
@@ -350,6 +358,15 @@
     document.getElementById('menu-sound').addEventListener('click', function() { isSoundEnabled = !isSoundEnabled; this.innerText = isSoundEnabled ? "🔊 Mute Sounds" : "🔇 Unmute Sounds"; });
     document.getElementById('menu-lock').addEventListener('click', () => { securityScreen.style.display = "flex"; checkDeviceAuth(); });
     document.getElementById('menu-reset').addEventListener('click', () => { if(confirm("ඔබගේ User Name සහ Password clear කිරීමට අවශ්‍යද?")) { localStorage.clear(); location.reload(); }});
+    
+    // Notification Enable Button Action (අලුතින්)
+    document.getElementById('menu-notify').addEventListener('click', () => {
+        if(window.OneSignal) {
+            window.OneSignal.Slidedown.promptPush();
+        } else {
+            alert("Notification SDK එක තවම ලෝඩ් වී නැත. කරුණාකර නැවත උත්සහ කරන්න.");
+        }
+    });
 
     function sendMessage() {
         const text = messageInput.value.trim();
@@ -417,10 +434,8 @@
         manifestLink.rel = 'manifest'; manifestLink.href = encodedManifest; 
         document.head.appendChild(manifestLink);
         
-        // PWA සහ OneSignal සඳහා නිවැරදි Service Worker එක ලියාපදිංචි කිරීම
-        if ('serviceWorker' in navigator) { 
-            navigator.serviceWorker.register('/OneSignalSDKWorker.js').catch(err => console.log('SW Reg Failed:', err)); 
-        }
+        // (අලුතින් වෙනස් කළ කොටස) මෙතන තිබුණු Manual Service worker register එක මකා දැමුවා, 
+        // මොකද OneSignal එකෙන් ඉබේම service worker එක register කරන නිසා.
     })();
 
     let deferredPrompt = null;
